@@ -1,11 +1,8 @@
 name: Deployment Backend
-
 on:
   workflow_dispatch:
   workflow_call:
-
 jobs:
-
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
@@ -17,9 +14,9 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        command_timeout: 10m
         script: |
-            docker pull harisheoran/backend_img:master
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+            docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.BACKEND_IMG }}:latest
             docker compose -f docker-compose.yaml up -d
             docker container prune -f
             docker image prune -f
